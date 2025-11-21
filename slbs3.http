@@ -1,0 +1,18 @@
+curl 'https://gkmsyllabus.meijo-u.ac.jp/camweb/slbssrch.do' \
+  -X POST \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:145.0) Gecko/20100101 Firefox/145.0' \
+  -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+  -H 'Accept-Language: ja,en-US;q=0.7,en;q=0.3' \
+  -H 'Accept-Encoding: gzip, deflate, br, zstd' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -H 'Origin: https://gkmsyllabus.meijo-u.ac.jp' \
+  -H 'Connection: keep-alive' \
+  -H 'Referer: https://gkmsyllabus.meijo-u.ac.jp/camweb/slbssrch.do' \
+  -H 'Cookie: JSESSIONID=_Z1OJk6pkONy2NOYobXOS4h1M_yoOlzRi68T_tSncr7yFkERBJba0PgVdDhXFNki.camweb_001' \
+  -H 'Upgrade-Insecure-Requests: 1' \
+  -H 'Sec-Fetch-Dest: document' \
+  -H 'Sec-Fetch-Mode: navigate' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'Sec-Fetch-User: ?1' \
+  -H 'Priority: u=0, i' \
+  --data-raw 'buttonName=&timestamp=????&maxDispListCount=200&value%28pageCount%29=&value%28maxCount%29=200&navigateKougiList=dummy&maxDispListCount=10&value%28pageCount%29=&value%28maxCount%29=&dummy=dummy'
