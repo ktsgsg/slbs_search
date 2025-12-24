@@ -3,7 +3,8 @@ beautifulsoup4
 pyOpenSSL
 cryptography
 certifi
-urllib3beautifulsoup4==4.14.2
+urllib3
+beautifulsoup4==4.14.2
 bs4==0.0.2
 certifi==2025.11.12
 cffi==2.0.0
