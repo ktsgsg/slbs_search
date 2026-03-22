@@ -40,3 +40,16 @@ def insert_subject(conn, subject:setlist.subject):
    cur.execute(sql, (subject.code, subject.name, subject.place_and_time, subject.teachers, subject.url))
    conn.commit()
    return cur.lastrowid
+
+def select_all_url(conn):
+   """
+   Query all rows in the subjects table
+   :param conn: the Connection object
+   :return:
+   """
+   cur = conn.cursor()
+   cur.execute("SELECT url FROM subjects")
+   conn.commit()
+   rows = cur.fetchall()
+   
+   return rows

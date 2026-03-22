@@ -1,15 +1,18 @@
 import requests
 import certifi
 from bs4 import BeautifulSoup
-from OpenSSL import crypto
 from urllib3.contrib import pyopenssl
 import urllib.parse
 import setlist
 import sqlite_handle
+import infomation_exact
+
+import os
+import sys
 
 pyopenssl.inject_into_urllib3()# OpenSSLをurllib3に注入
 
-def main():
+def makedb(filename, year):
    url = 'https://gkmsyllabus.meijo-u.ac.jp/camweb/slbssrch.do'
    try:
       resp = requests.get(url, verify=certifi.where(), timeout=15)
@@ -30,7 +33,7 @@ def main():
    print("Successfully fetched the page and parsed timestamp.")
    
    #sqliteの接続を作成
-   database = "subjects.db"
+   database = filename
    conn = sqlite_handle.create_connection(database)
    if conn is None:
       print("Error! cannot create the database connection.")
@@ -49,7 +52,7 @@ def main():
    sqlite_handle.create_table(conn, sql_create_subjects_table)
    
    #POST用パラメータを作成
-   query_str = "value%28methodname%29=sylkougi_search&buttonName=searchKougi&timestamp=????&value%28nendo%29=2025&value%28searchDetailConditionFlag%29=2&value%28kouginm%29=&value%28searchDetailConditionFlag%29=2&value%28syokunm%29=&value%28searchDetailConditionFlag%29=2&value%28keywords%29=&value%28searchKeywordFlg%29=1&value%28searchDetailConditionFlag%29=2&value%28kkikancd%29=&value%28searchDetailConditionFlag%29=2&value%28grade%29=&value%28searchDetailConditionFlag%29=2&value%28searchDetailConditionFlag%29=2&value%28crclm%29=&value%28searchDetailConditionFlag%29=2&value%28bunya%29="
+   query_str = f"value%28methodname%29=sylkougi_search&buttonName=searchKougi&timestamp=????&value%28nendo%29={year}&value%28searchDetailConditionFlag%29=2&value%28kouginm%29=&value%28searchDetailConditionFlag%29=2&value%28syokunm%29=&value%28searchDetailConditionFlag%29=2&value%28keywords%29=&value%28searchKeywordFlg%29=1&value%28searchDetailConditionFlag%29=2&value%28kkikancd%29=&value%28searchDetailConditionFlag%29=2&value%28grade%29=&value%28searchDetailConditionFlag%29=2&value%28searchDetailConditionFlag%29=2&value%28crclm%29=&value%28searchDetailConditionFlag%29=2&value%28bunya%29="
    first_query = set_params(timestamp_input,query_str)
    
    #ここでPOSTリクエストを送信
@@ -110,7 +113,7 @@ def main():
          timestamp_input = get_timestamp(post_resp.text)
          if timestamp_input is None:
             print("timestamp not found for next page.")
-            return
+            return i
          subjects = setlist.setlist_parser(post_resp.text)
          print(f"Parsed subjects for page {i}, count: {len(subjects)}")
          
@@ -143,7 +146,27 @@ def set_params(timestamp_input,query_str):
    #値のリストを文字列に変換
    return {k: v[0] for k, v in query_params.items()}
    
-   
 
+def main():
+   try:
+      filename = sys.argv[1]
+      year = sys.argv[2]
+   except IndexError:
+      print("Usage: python main.py <filename> <year>")
+      sys.exit(1)
+   print(f"Creating database with filename: {filename} for year: {year}")
+   count = makedb(filename, year)
+   if(count is None):#データがnoneのときはエラーで終了
+      print("Database creation failed.")
+      sys.exit(1)
+   print("Database creation completed.")
+
+def main_dev():
+   filename = "subjects.db"
+   urls = infomation_exact.url_listup(filename)
+   
 if __name__ == "__main__":
-   main()
+   main_dev()
+   
+   
+   
