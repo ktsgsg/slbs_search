@@ -165,9 +165,6 @@ def main_dev():
    filename = "subjects.db"
    urls = infomation_exact.url_listup(filename)
    results =infomation_exact.do_fetchs(urls[:1])
-   with open("subject_info.html","w",encoding="utf-8") as f:
-      f.write(results[0][0])
-   
 if __name__ == "__main__":
    main_dev()
    

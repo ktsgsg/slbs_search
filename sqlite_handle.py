@@ -41,7 +41,7 @@ def insert_subject(conn, subject:setlist.subject):
    conn.commit()
    return cur.lastrowid
 
-def select_all_url(conn):
+def select_all_code_and_url(conn):
    """
    Query all rows in the subjects table
    :param conn: the Connection object
