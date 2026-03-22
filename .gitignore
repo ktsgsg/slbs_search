@@ -10,3 +10,6 @@ __pycache__/
 .vscode/
 .idea/
 *.html
+subjects/
+subjects*/
+meili*/

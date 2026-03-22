@@ -6,6 +6,7 @@ import certifi
 import ssl
 import re
 import json
+import urllib.parse
 
 def create_legacy_compatible_ssl_context():
    # Some legacy servers reject modern default TLS settings.
@@ -27,7 +28,7 @@ def url_listup(filename):
    datas = sqlite_handle.select_all_code_and_url(conn)
    return datas
 
-async def fetch_subject_info(urls,max_concurrent_requests=5):
+async def fetch_subject_info(urls,max_concurrent_requests=5,save_json=False):
    # SSL コンテキストの作成
    ssl_context = create_legacy_compatible_ssl_context()
 
@@ -37,23 +38,32 @@ async def fetch_subject_info(urls,max_concurrent_requests=5):
       tasks = []
       results = []
       for url in urls:
-         task = asyncio.create_task(fetch_subject_info_from_url(session, "https://gkmsyllabus.meijo-u.ac.jp"+url[0]))
+         task = asyncio.create_task(fetch_subject_info_from_url(session, "https://gkmsyllabus.meijo-u.ac.jp"+url[0],save_json=save_json))
          tasks.append(task)
          if len(tasks) >= max_concurrent_requests:
-            results.append(await asyncio.gather(*tasks))
+            batch_results = await asyncio.gather(*tasks)
+            results.extend(batch_results)
             tasks = []
       if tasks:
-         results.append(await asyncio.gather(*tasks))
+         batch_results = await asyncio.gather(*tasks)
+         results.extend(batch_results)
       return results
 
-async def fetch_subject_info_from_url(session:aiohttp.ClientSession, url):
+async def fetch_subject_info_from_url(session:aiohttp.ClientSession, url,save_json=False):
    print(f"Fetching subject info from URL: {url}")
    async with session.get(url) as response:
-      return await response.text()
+      #ない場合のエラー処理後で書く
+      id = extract_kougicd_from_url(url)
+      html_content = await response.text()
+      if save_json:
+         output_json_path = f"subjects/subject_{id}.json"
+         save_subject_info_json_from_html(html_content, output_json_path, subject_id=id)
+         return 
+      return parse_subject_info_html(html_content, subject_id=id)
    
-def do_fetchs(urls):
+def do_fetchs(urls,max_concurrent_requests=5,save_json=False):
    loop = asyncio.get_event_loop()
-   results = loop.run_until_complete(fetch_subject_info(urls))
+   results = loop.run_until_complete(fetch_subject_info(urls, max_concurrent_requests=max_concurrent_requests,save_json=save_json))
    return results
 
 
@@ -171,3 +181,12 @@ def save_subject_info_json(input_html_path, output_json_path, subject_id=None, i
    with open(output_json_path, "w", encoding="utf-8") as f:
       json.dump(data, f, ensure_ascii=False, indent=indent)
    return data
+
+
+def extract_kougicd_from_url(url):
+   parsed = urllib.parse.urlparse(url)
+   query = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
+   values = query.get("value(kougicd)")
+   if not values:
+      return None
+   return values[0]

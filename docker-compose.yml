@@ -1,0 +1,20 @@
+services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.13
+    container_name: syllabus-meilisearch
+    restart: unless-stopped
+    ports:
+      - "7700:7700"
+    environment:
+      MEILI_ENV: development
+      MEILI_HTTP_ADDR: 0.0.0.0:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-change-this-master-key}
+      MEILI_NO_ANALYTICS: "true"
+      MEILI_LOG_LEVEL: INFO
+      MEILI_DB_PATH: /meili_data
+      MEILI_DUMP_DIR: /meili_dumps
+      MEILI_SNAPSHOT_DIR: /meili_snapshots
+    volumes:
+      - ./meili_data:/meili_data
+      - ./meili_dumps:/meili_dumps
+      - ./meili_snapshots:/meili_snapshots

@@ -163,8 +163,14 @@ def main():
 
 def main_dev():
    filename = "subjects.db"
+   year = "2025"
    urls = infomation_exact.url_listup(filename)
-   results =infomation_exact.do_fetchs(urls[:1])
+   infomation_exact.do_fetchs(urls,max_concurrent_requests=10,save_json=True)
+   #フォルダの名前を変更する
+   os.rename("subjects", f"subjects_{year}")
+   os.mkdir("subjects")
+   
+   
 if __name__ == "__main__":
    main_dev()
    
